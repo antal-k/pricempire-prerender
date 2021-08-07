@@ -31,7 +31,6 @@ async function init() {
     });
     await cluster.task(async ({ page, data: url }) => {
         try {
-            console.log(url);
             await page.goto(url, {
                 waitUntil: 'networkidle2',
                 timeout: 180 * 1000,
