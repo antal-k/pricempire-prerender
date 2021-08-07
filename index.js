@@ -12,6 +12,8 @@ const sitemap = new sitemapper();
 let browser = undefined;
 let page = undefined;
 
+let isRunning = false;
+
 var job = new CronJob(
     '0 20 3 * * *',
     () => {
@@ -39,14 +41,26 @@ app.get('/start', async (req, res) => {
 });
 
 async function startProcess() {
+    if (isRunning) {
+        return false;
+    }
+    isRunning = true;
     await init();
     sitemap.fetch(process.env.SITEMAP).then(async (data) => {
-        for await (const site of data.sites) {
-            const content = await fetchPage(site);
-            const status = await redisClient.set(`prerender:${site}`, content);
-            console.log(site, status, content.length);
+        try {
+            for await (const site of data.sites) {
+                const content = await fetchPage(site);
+                const status = await redisClient.set(
+                    `prerender:${site}`,
+                    content,
+                );
+                console.log(site, status, content.length);
+            }
+            await browser.close();
+            isRunning = false;
+        } catch (e) {
+            console.log(e);
         }
-        await browser.close();
     });
 }
 
