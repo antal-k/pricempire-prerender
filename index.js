@@ -50,7 +50,7 @@ app.listen(process.env.PORT, () => {
 
 async function fetchPage(url) {
     if (!browser || !page) {
-        throw 'Failed to initialize pupeeteer';
+        throw 'Failed to initialize puppeteer';
     }
     await page.goto(url, {
         waitUntil: 'networkidle2',
