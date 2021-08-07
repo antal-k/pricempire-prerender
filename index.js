@@ -28,7 +28,7 @@ app.listen(process.env.PORT, () => {
 async function preRender(url) {
     const content = await fetchPage(url);
     await redisClient.set(
-        `prerender:${site}`,
+        `prerender-save:${url}`,
         content,
     );
     return content;
