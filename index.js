@@ -27,7 +27,7 @@ var job = new CronJob(
 async function init() {
     cluster = await Cluster.launch({
         concurrency: Cluster.CONCURRENCY_CONTEXT,
-        maxConcurrency: 10,
+        maxConcurrency: 5,
     });
     await cluster.task(async ({ page, data: url }) => {
         try {
