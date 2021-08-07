@@ -33,6 +33,11 @@ app.get('/url/*', async (req, res) => {
     });
 });
 
+app.get('/start', async (req, res) => {
+    startProcess();
+    res.send('Process Started');
+});
+
 async function startProcess() {
     await init();
     sitemap.fetch(process.env.SITEMAP).then(async (data) => {
