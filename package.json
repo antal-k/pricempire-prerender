@@ -1,18 +1,16 @@
 {
-  "name": "pricempire-prerender",
-  "version": "1.0.0",
-  "description": "Pricempire pre-renderer",
-  "main": "index.js",
-  "repository": "git@github.com:antal-k/pricempire-prerender.git",
-  "author": "Antal K",
-  "license": "MIT",
-  "dependencies": {
-    "cron": "^1.8.2",
-    "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "puppeteer": "^10.2.0",
-    "puppeteer-cluster": "^0.22.0",
-    "redis": "^3.1.2",
-    "sitemapper": "^3.1.12"
-  }
+    "name": "pricempire-prerender",
+    "version": "1.0.0",
+    "description": "Pricempire pre-renderer",
+    "main": "index.js",
+    "repository": "git@github.com:antal-k/pricempire-prerender.git",
+    "author": "Antal K",
+    "license": "MIT",
+    "dependencies": {
+        "cron": "^1.8.2",
+        "dotenv": "^10.0.0",
+        "express": "^4.17.1",
+        "puppeteer": "^10.2.0",
+        "redis": "^3.1.2"
+    }
 }
