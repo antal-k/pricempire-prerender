@@ -47,20 +47,21 @@ async function startProcess() {
     isRunning = true;
     await init();
     sitemap.fetch(process.env.SITEMAP).then(async (data) => {
-        try {
-            for await (const site of data.sites) {
+        for await (const site of data.sites) {
+            try {
                 const content = await fetchPage(site);
                 const status = await redisClient.set(
                     `prerender:${site}`,
                     content,
                 );
                 console.log(site, status, content.length);
+
+            } catch (e) {
+                console.log(e);
             }
-            await browser.close();
-            isRunning = false;
-        } catch (e) {
-            console.log(e);
         }
+        await browser.close();
+        isRunning = false;
     });
 }
 
