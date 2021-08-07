@@ -74,7 +74,7 @@ async function fetchPage(url) {
     }
     await page.goto(url, {
         waitUntil: 'networkidle2',
-        timeout: 180,
+        timeout: 180 * 1000,
     });
     return await page.content();
 }
