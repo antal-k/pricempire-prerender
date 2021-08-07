@@ -29,7 +29,7 @@ async function init() {
 }
 
 app.get('/url/*', async (req, res) => {
-    console.log(req.params);
+    console.log(req.params[0]);
     redisClient.get(`prerender:${req.params[0]}`, (err, content) => {
         res.send(content);
     });
@@ -74,6 +74,7 @@ async function fetchPage(url) {
     }
     await page.goto(url, {
         waitUntil: 'networkidle2',
+        timeout: 180,
     });
     return await page.content();
 }
