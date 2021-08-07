@@ -41,6 +41,7 @@ async function startProcess() {
             const status = await redisClient.set(`prerender:${site}`, content);
             console.log(site, status, content.length);
         }
+        await browser.close();
     });
 }
 
