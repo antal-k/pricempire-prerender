@@ -3,14 +3,15 @@ const redis = require('redis');
 const sitemapper = require('sitemapper');
 const puppeteer = require('puppeteer');
 const CronJob = require('cron').CronJob;
+const { Cluster } = require('puppeteer-cluster');
 
 require('dotenv').config();
 
 const redisClient = redis.createClient();
 const app = express();
 const sitemap = new sitemapper();
-let browser = undefined;
-let page = undefined;
+
+let cluster = undefined;
 
 let isRunning = false;
 
@@ -24,8 +25,27 @@ var job = new CronJob(
 );
 
 async function init() {
-    browser = await puppeteer.launch();
-    page = await browser.newPage();
+    cluster = await Cluster.launch({
+        concurrency: Cluster.CONCURRENCY_CONTEXT,
+        maxConcurrency: 10,
+    });
+    await cluster.task(async ({ page, data: url }) => {
+        try {
+            console.log(url);
+            await page.goto(url, {
+                waitUntil: 'networkidle2',
+                timeout: 180 * 1000,
+            });
+            const content = await page.content();
+            const status = await redisClient.set(
+                `prerender:${url}`,
+                content,
+            );
+            console.log(url, status, content.length);
+        } catch (e) {
+            console.log(e);
+        }
+    });
 }
 
 app.get('/url/*', async (req, res) => {
@@ -44,23 +64,15 @@ async function startProcess() {
     if (isRunning) {
         return false;
     }
+
     isRunning = true;
     await init();
     sitemap.fetch(process.env.SITEMAP).then(async (data) => {
         for await (const site of data.sites) {
-            try {
-                const content = await fetchPage(site);
-                const status = await redisClient.set(
-                    `prerender:${site}`,
-                    content,
-                );
-                console.log(site, status, content.length);
-
-            } catch (e) {
-                console.log(e);
-            }
+            await cluster.queue(site);
         }
-        await browser.close();
+        await cluster.idle();
+        await cluster.close();
         isRunning = false;
     });
 }
@@ -68,14 +80,3 @@ async function startProcess() {
 app.listen(process.env.PORT, () => {
     console.log(`App listening at http://localhost:${process.env.PORT}`);
 });
-
-async function fetchPage(url) {
-    if (!browser || !page) {
-        throw 'Failed to initialize puppeteer';
-    }
-    await page.goto(url, {
-        waitUntil: 'networkidle2',
-        timeout: 180 * 1000,
-    });
-    return await page.content();
-}
